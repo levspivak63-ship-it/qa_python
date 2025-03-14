@@ -1,0 +1,83 @@
+import unittest
+
+class TestBooksCollector(unittest.TestCase):
+
+    def setUp(self):
+        self.collector = BooksCollector()
+
+    # Тест на добавление новых книг
+    def test_add_new_book(self):
+        self.collector.add_new_book("1984")
+        self.assertIn("1984", self.collector.books_genre)
+        self.assertEqual(self.collector.books_genre["1984"], '')
+
+    # Тест на добавление книги, превышающей максимальную длину
+    def test_add_new_book_too_long_name(self):
+        self.collector.add_new_book("A" * 41)
+        self.assertNotIn("A" * 41, self.collector.books_genre)
+
+    # Тест на установку жанра для книги
+    def test_set_book_genre(self):
+        self.collector.add_new_book("Fahrenheit 451")
+        self.collector.set_book_genre("Fahrenheit 451", "Фантастика")
+        self.assertEqual(self.collector.get_book_genre("Fahrenheit 451"), "Фантастика")
+
+    # Тест на получение жанра книги
+    def test_get_book_genre(self):
+        self.collector.add_new_book("The Shining")
+        self.collector.set_book_genre("The Shining", "Ужасы")
+        self.assertEqual(self.collector.get_book_genre("The Shining"), "Ужасы")
+
+    # Тест на получение книг с определённым жанром
+    def test_get_books_with_specific_genre(self):
+        self.collector.add_new_book("It")
+        self.collector.set_book_genre("It", "Ужасы")
+        self.collector.add_new_book("Harry Potter")
+        self.collector.set_book_genre("Harry Potter", "Фантастика")
+        books = self.collector.get_books_with_specific_genre("Ужасы")
+        self.assertIn("It", books)
+        self.assertNotIn("Harry Potter", books)
+
+    # Тест на получение книг для детей
+    def test_get_books_for_children(self):
+        self.collector.add_new_book("Маша и медведь")
+        self.collector.set_book_genre("Маша и медведь", "Мультфильмы")
+        self.collector.add_new_book("Ужас вихря")
+        self.collector.set_book_genre("Ужас вихря", "Ужасы")
+        children_books = self.collector.get_books_for_children()
+        self.assertIn("Маша и медведь", children_books)
+        self.assertNotIn("Ужас вихря", children_books)
+
+    # Тест на добавление книги в избранное
+    def test_add_book_in_favorites(self):
+        self.collector.add_new_book("Lord of the Flies")
+        self.collector.add_book_in_favorites("Lord of the Flies")
+        self.assertIn("Lord of the Flies", self.collector.get_list_of_favorites_books())
+
+    # Тест на удаление книги из избранного
+    def test_delete_book_from_favorites(self):
+        self.collector.add_new_book("Pride and Prejudice")
+        self.collector.add_book_in_favorites("Pride and Prejudice")
+        self.collector.delete_book_from_favorites("Pride and Prejudice")
+        self.assertNotIn("Pride and Prejudice", self.collector.get_list_of_favorites_books())
+
+    # Тест на отсутствие повторного добавления в избранное
+    def test_add_book_in_favorites_twice(self):
+        self.collector.add_new_book("The Great Gatsby")
+        self.collector.add_book_in_favorites("The Great Gatsby")
+        self.collector.add_book_in_favorites("The Great Gatsby")  # Повторное добавление
+        self.assertEqual(len(self.collector.get_list_of_favorites_books()), 1)
+
+    # Параметризованный тест на добавление книг
+    from parameterized import parameterized
+    @parameterized.expand([
+        ("The Catcher in the Rye",),
+        ("To Kill a Mockingbird",),
+        ("Brave New World",)
+    ])
+    def test_add_books_with_parameterization(self, book_name):
+        self.collector.add_new_book(book_name)
+        self.assertIn(book_name, self.collector.books_genre)
+
+if __name__ == '__main__':
+    unittest.main()
