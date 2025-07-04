@@ -4,16 +4,12 @@ from main import BooksCollector
 class TestBooksCollector:
     @pytest.fixture
     def collector(self):
-        """Фикстура для чистого коллектора книг"""
         return BooksCollector()
     
     @pytest.fixture
     def collector_with_books(self):
-        """Фикстура с подготовленными данными:
-        - 2 книги с разными жанрами
-        - 1 книга в избранном"""
-        collector = BooksCollector()  # Создаем новый экземпляр
-        # Добавляем тестовые данные
+
+        collector = BooksCollector()  
         collector.add_new_book("Книга 1")
         collector.add_new_book("Книга 2")
         collector.set_book_genre("Книга 1", "Фантастика")
@@ -21,7 +17,6 @@ class TestBooksCollector:
         collector.add_book_in_favorites("Книга 1")
         return collector
 
-    # Базовые тесты
     def test_add_new_book_valid_name(self, collector):
         collector.add_new_book('Том Сойер')
         assert 'Том Сойер' in collector.get_books_genre()
@@ -44,7 +39,6 @@ class TestBooksCollector:
         collector.add_new_book('Том Сойер')
         assert collector.get_book_genre('Том Сойер') == ''
 
-    # Тесты работы с жанрами
     def test_set_book_genre_valid(self, collector):
         collector.add_new_book('Том Сойер')
         collector.set_book_genre('Том Сойер', 'Фантастика')
@@ -59,7 +53,6 @@ class TestBooksCollector:
         collector.set_book_genre('Несуществующая книга', 'Фантастика')
         assert collector.get_book_genre('Несуществующая книга') is None
 
-    # Тесты с подготовленными данными
     def test_get_books_with_specific_genre(self, collector_with_books):
         books = collector_with_books.get_books_with_specific_genre('Фантастика')
         assert 'Книга 1' in books
@@ -67,11 +60,10 @@ class TestBooksCollector:
 
     def test_get_books_for_children(self, collector_with_books):
         children_books = collector_with_books.get_books_for_children()
-        assert 'Книга 1' in children_books  # "Фантастика" - детский жанр
-        assert 'Книга 2' in children_books  # "Комедии" - детский жанр
+        assert 'Книга 1' in children_books  
+        assert 'Книга 2' in children_books  
         assert len(children_books) == 2
 
-    # Тесты работы с избранным
     def test_add_book_in_favorites(self, collector):
         collector.add_new_book('Том Сойер')
         collector.add_book_in_favorites('Том Сойер')
