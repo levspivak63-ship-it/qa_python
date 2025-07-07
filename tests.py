@@ -4,12 +4,10 @@ from main import BooksCollector
 class TestBooksCollector:
     @pytest.fixture
     def collector(self):
-
         return BooksCollector()
     
     @pytest.fixture
     def collector_with_books(self):
-
         collector = BooksCollector()  
         collector.add_new_book("Книга 1")
         collector.add_new_book("Книга 2")
@@ -20,16 +18,16 @@ class TestBooksCollector:
 
     def test_add_new_book_valid_name(self, collector):
         collector.add_new_book('Том Сойер')
-        assert 'Том Сойер' in collector.get_books_genre()
+        assert collector.get_book_genre('Том Сойер') is not None
 
     def test_add_new_book_invalid_name_too_short(self, collector):
         collector.add_new_book('')
-        assert '' not in collector.get_books_genre()
+        assert collector.get_book_genre('') is None
 
     def test_add_new_book_invalid_name_too_long(self, collector):
         long_name = 'x' * 41
         collector.add_new_book(long_name)
-        assert long_name not in collector.get_books_genre()
+        assert collector.get_book_genre(long_name) is None
 
     def test_add_new_book_duplicate(self, collector):
         collector.add_new_book('Том Сойер')
@@ -54,15 +52,22 @@ class TestBooksCollector:
         collector.set_book_genre('Несуществующая книга', 'Фантастика')
         assert collector.get_book_genre('Несуществующая книга') is None
 
+    def test_get_book_genre_for_book_with_genre(self, collector_with_books):
+        assert collector_with_books.get_book_genre("Книга 1") == "Фантастика"
+
+    def test_get_book_genre_for_book_without_genre(self, collector):
+        collector.add_new_book("Книга без жанра")
+        assert collector.get_book_genre("Книга без жанра") == ""
+
     def test_get_books_with_specific_genre(self, collector_with_books):
         books = collector_with_books.get_books_with_specific_genre('Фантастика')
-        assert 'Книга 1' in books
+        assert "Книга 1" in books
         assert len(books) == 1
 
     def test_get_books_for_children(self, collector_with_books):
         children_books = collector_with_books.get_books_for_children()
-        assert 'Книга 1' in children_books  
-        assert 'Книга 2' in children_books  
+        assert "Книга 1" in children_books
+        assert "Книга 2" in children_books
         assert len(children_books) == 2
 
     def test_add_book_in_favorites(self, collector):
@@ -82,5 +87,5 @@ class TestBooksCollector:
 
     def test_get_list_of_favorites_books(self, collector_with_books):
         favorites = collector_with_books.get_list_of_favorites_books()
-        assert 'Книга 1' in favorites
+        assert "Книга 1" in favorites
         assert len(favorites) == 1
