@@ -1,20 +1,9 @@
 import pytest
 from main import BooksCollector
-
-name_n_genre = [["Тень за стеной", "Ужасы"],
-                ["Лабиринт будущего", "Фантастика"], ["Улика в тумане", "Детективы"],
-                ["Смех в мультивселенной", "Комедии"], ["Приключения плюшевого мишки", "Мультфильмы"]]
+from data import BOOKS_DATA
 
 
 class TestBooksCollector:
-
-    @pytest.fixture
-    def collector_with_books(self):
-        collector = BooksCollector()
-        for name, genre in name_n_genre:
-            collector.add_new_book(name)
-            collector.set_book_genre(name, genre)
-        return collector
 
     def test_add_new_book_add_two_books(self):
         collector = BooksCollector()
@@ -47,7 +36,7 @@ class TestBooksCollector:
 
         assert len(collector.get_books_genre()) == 0
 
-    @pytest.mark.parametrize('name, genre', name_n_genre)
+    @pytest.mark.parametrize('name, genre', BOOKS_DATA)
     def test_set_book_genre_set_six_genre(self, name, genre):
         collector = BooksCollector()
 
@@ -57,7 +46,13 @@ class TestBooksCollector:
 
         assert collector.get_book_genre(name) == genre
 
-    @pytest.mark.parametrize('name, genre', name_n_genre)
+    def test_get_book_genre_return_added_genre(self, collector_with_books):
+        collector = collector_with_books
+
+        assert collector.get_book_genre('Лабиринт будущего') == 'Фантастика'
+        assert collector.get_book_genre('Приключения плюшевого мишки') == 'Мультфильмы'
+
+    @pytest.mark.parametrize('name, genre', BOOKS_DATA)
     def test_get_books_with_specific_genre_six_genre(self, name, genre, collector_with_books):
         collector = collector_with_books
 
@@ -123,3 +118,19 @@ class TestBooksCollector:
         list_favorite_books = collector.get_list_of_favorites_books()
 
         assert set(list_favorite_books) == {first_book, second_book}
+
+    def test_get_list_of_favorites_books_return_added_books(self, collector_with_books):
+        first_book = 'Улика в тумане'
+        second_book = 'Смех в мультивселенной'
+        collector = collector_with_books
+
+        collector.add_book_in_favorites(first_book)
+        assert collector.get_list_of_favorites_books() == [first_book]
+
+        collector.add_book_in_favorites(second_book)
+        assert set(collector.get_list_of_favorites_books()) == {first_book, second_book}
+
+    def test_get_list_of_favorites_books_returns_empty_list(self, collector_with_books):
+        collector = collector_with_books
+
+        assert collector.get_list_of_favorites_books() == []
