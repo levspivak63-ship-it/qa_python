@@ -22,7 +22,6 @@ class TestBooksCollector:
     def test_set_book_genre_success(self, collector):
         collector.add_new_book("Вокруг света за 80 дней")
         collector.set_book_genre("Вокруг света за 80 дней", "Приключения")
-        # проверяем напрямую словарь, а не через get_book_genre
         assert collector.get_books_genre()["Вокруг света за 80 дней"] == "Приключения"
 
     def test_get_book_genre(self, collector):
@@ -52,7 +51,7 @@ class TestBooksCollector:
     def test_add_book_in_favorites_success(self, collector):
         collector.add_new_book("Вокруг света за 80 дней")
         collector.add_book_in_favorites("Вокруг света за 80 дней")
-        assert "Вокруг света за 80 дней" in collector.favorites  # проверяем напрямую список
+        assert "Вокруг света за 80 дней" in collector.favorites
 
     def test_get_list_of_favorites_books(self, collector):
         collector.add_new_book("Вокруг света за 80 дней")
@@ -70,3 +69,12 @@ class TestBooksCollector:
         collector.add_book_in_favorites("Вокруг света за 80 дней")
         collector.delete_book_from_favorites("Вокруг света за 80 дней")
         assert "Вокруг света за 80 дней" not in collector.get_list_of_favorites_books()
+
+    def test_get_books_genre_returns_dict(self, collector):
+        collector.add_new_book("Вокруг света за 80 дней")
+        collector.add_new_book("Десять негритят")
+        expected = {
+            "Вокруг света за 80 дней": "",
+            "Десять негритят": ""
+        }
+        assert collector.get_books_genre() == expected
