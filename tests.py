@@ -119,3 +119,31 @@ class TestBooksCollector:
         comedy_and_horror_collection.delete_book_from_favorites(second_book_name)
         assert len(comedy_and_horror_collection.get_list_of_favorites_books()) == 1
         assert comedy_and_horror_collection.get_list_of_favorites_books() == [first_book_name]
+
+    def test_get_books_genre_returns_books_dictionary(self, books_collection):
+        book_name_1 = 'Ревизор'
+        book_name_2 = 'Чисто английское убийство'
+        genre_1 = 'Комедии'
+        genre_2 = 'Детективы'
+        
+        books_collection.add_new_book(book_name_1)
+        books_collection.add_new_book(book_name_2)
+        books_collection.set_book_genre(book_name_1, genre_1)
+        books_collection.set_book_genre(book_name_2, genre_2)
+        
+        result = books_collection.get_books_genre()
+        assert result == {book_name_1: genre_1, book_name_2: genre_2}
+
+    def test_get_list_of_favorites_books_returns_favorites_list(self, books_collection):
+        book_name_1 = 'Мастер и Маргарита'
+        book_name_2 = 'Преступление и наказание'
+        book_name_3 = 'Идиот'
+        
+        books_collection.add_new_book(book_name_1)
+        books_collection.add_new_book(book_name_2)
+        books_collection.add_new_book(book_name_3)
+        books_collection.add_book_in_favorites(book_name_1)
+        books_collection.add_book_in_favorites(book_name_3)
+        
+        result = books_collection.get_list_of_favorites_books()
+        assert result == [book_name_1, book_name_3]
