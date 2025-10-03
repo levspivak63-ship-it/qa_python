@@ -2,29 +2,41 @@ from main import BooksCollector
 
 # класс TestBooksCollector объединяет набор тестов, которыми мы покрываем наше приложение BooksCollector
 # обязательно указывать префикс Test
+
+
+         # параметризированный тест: проверка добавления новых книг 
+import pytest 
+
 class TestBooksCollector:
 
-        # проверка добавления новых книг 
-    def test_add_new_book_add_two_books(self):
-        # создаем экземпляр (объект) класса BooksCollector
-        collector = BooksCollector()
+@pytest.mark.parametrize("book_name, expected_result", [
+    ("Корова", True),                      # добавляем новую книгу с количеством символов < 40
+    ("", False),                          # пустое название — не добавляем
+    ("X" * 50, False),                      # слишком длинное
+    ("Корова", False),                    # дубликат книги — не добавляем
+    ("X", True)                            # название из  одного символа - добавляем
+    ("X" * 40, True),                    # длина ровно 40 символов — добавляем
+    ("X" * 41, False),                   # длина 41 — не добавляем
+])
 
-        # добавляем две книги
-        collector.add_new_book('Гордость и предубеждение и зомби')
-        collector.add_new_book('Что делать, если ваш кот хочет вас убить')
+def test_add_new_book(book_name, expected_result):
+    collector = BooksCollector()
+    # Добавим книгу "Корова" предварительно, чтобы проверить дубликат
+    if expected_result is False and book_name == "Корова":
+        collector.add_new_book("Корова")  # предварительно добавить
+    
+    result = collector.add_new_book(book_name)
+    assert result == expected_result
+    if result:
+        # Если добавили книгу, она есть в словаре с пустым жанром
+        assert book_name in collector.books_genre
+        assert collector.books_genre[book_name] == ''
+    else:
+        # Если не добавили, книги в словаре нет
+        assert book_name not in collector.books_genre or collector.books_genre[book_name] == ''
 
-        # проверяем, что добавилось именно две книги
-        # словарь books_genre, который нам возвращает метод get_books_genre, имеет длину 2
-        assert len(collector.get_books_genre()) == 2
 
-        # проверяем отказ в добавлении книги с количеством символов в  названии >= 41
-    def test__add_new_book_add_48_len(self):
-        collector = BooksCollector()
-        collector.add_new_book("Сказка-сказка-сказка-сказка-сказка-сказка-сказка")    
-        books_genre = {}
-        # проверяем, что книга с 48 символами не добавлена в библиотеку
-        assert collector.add_new_book("Сказка-сказка-сказка-сказка-сказка-сказка-сказка") not in books_genre
-        
+
         # проверка установки книге жанра из находящихся в списке жанров
     def test_set_book_genre_book_name_in_books_genre_and_genre_in_genre(self):
         collector = BooksCollector()
