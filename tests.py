@@ -4,38 +4,40 @@ from main import BooksCollector
 # обязательно указывать префикс Test
 
 
-         # параметризированный тест: проверка добавления новых книг 
+        
+# параметризированный тест: проверка добавления новых книг 
+
 import pytest 
 
 class TestBooksCollector:
-
-@pytest.mark.parametrize("book_name, expected_result", [
-    ("Корова", True),                      # добавляем новую книгу с количеством символов < 40
-    ("", False),                          # пустое название — не добавляем
-    ("X" * 50, False),                      # слишком длинное
-    ("Корова", False),                    # дубликат книги — не добавляем
-    ("X", True)                            # название из  одного символа - добавляем
-    ("X" * 40, True),                    # длина ровно 40 символов — добавляем
-    ("X" * 41, False),                   # длина 41 — не добавляем
+    # передаем параметры в декратор в виде списка списков  
+    @pytest.mark.parametrize("book_name, expected_result", [
+    ("Академия", True),                      # название книги с количеством символов < 40 - положительный результат
+    ("", False),                          # пустое название книги — отрицательный результат
+    ("X" * 50, False),                      # слишком длинное название - отрицательный результат
+    ("Академия", False),                    # дубликат книги — отрицательный результат
+    ("X", True),                            # название из  одного символа - положительный результат
+    ("X" * 40, True),                    # длина ровно 40 символов — положительный результат
+    ("X" * 41, False)                   # длина 41 — отрицательный результат
 ])
 
-def test_add_new_book(book_name, expected_result):
-    collector = BooksCollector()
-    # Добавим книгу "Корова" предварительно, чтобы проверить дубликат
-    if expected_result is False and book_name == "Корова":
-        collector.add_new_book("Корова")  # предварительно добавить
-    
-    result = collector.add_new_book(book_name)
-    assert result == expected_result
-    if result:
-        # Если добавили книгу, она есть в словаре с пустым жанром
-        assert book_name in collector.books_genre
-        assert collector.books_genre[book_name] == ''
-    else:
+    def test_add_new_book(book_name, expected_result):
+        collector = BooksCollector()
+    # проверка добавления дубликата книги "Академия"
+        if expected_result is False and book_name == "Академия":
+            collector.add_new_book("Академия") 
+
+        result = collector.add_new_book(book_name)
+        assert result == expected_result
+        if result:
+        # проверка добавления книги в словарь
+            assert book_name in collector.books_genre
+            
+        else:
         # Если не добавили, книги в словаре нет
-        assert book_name not in collector.books_genre or collector.books_genre[book_name] == ''
+            assert book_name not in collector.books_genre  == ''
 
-
+class TestBooksCollector:
 
         # проверка установки книге жанра из находящихся в списке жанров
     def test_set_book_genre_book_name_in_books_genre_and_genre_in_genre(self):
