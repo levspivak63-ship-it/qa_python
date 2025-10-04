@@ -11,33 +11,43 @@ import pytest
 
 class TestBooksCollector:
     # передаем параметры в декратор в виде списка списков  
-    @pytest.mark.parametrize("book_name, expected_result", [
-    ("Академия", True),                      # название книги с количеством символов < 40 - положительный результат
-    ("", False),                          # пустое название книги — отрицательный результат
-    ("X" * 50, False),                      # слишком длинное название - отрицательный результат
-    ("Академия", False),                    # дубликат книги — отрицательный результат
-    ("X", True),                            # название из  одного символа - положительный результат
-    ("X" * 40, True),                    # длина ровно 40 символов — положительный результат
-    ("X" * 41, False)                   # длина 41 — отрицательный результат
-])
+    @pytest.mark.parametrize('book_name, expected_result', [
+        # Валидные длины (должны быть добавлены)
+        ('A', True),           # 1 символ - минимальная валидная длина
+        ('A * 5', True),       # 5 символов
+        ('A' * 39, True),      # 39 символов
+        ('A' * 40, True),      # 40 символов - максимальная валидная длина
+        
+        # Невалидные длины (не должны быть добавлены)
+        ('', False),           # 0 символов - пустая строка
+        ('A' * 41, False),     # 41 символ - превышает максимальную длину
+        ('A' * 50, False),     # 50 символов
+    ])
 
-    def test_add_new_book(book_name, expected_result):
+    def test_add_new_book_by_length(self, book_name, expected_result):
         collector = BooksCollector()
-    # проверка добавления дубликата книги "Академия"
-        if expected_result is False and book_name == "Академия":
-            collector.add_new_book("Академия") 
+        collector.add_new_book(book_name)
 
-        result = collector.add_new_book(book_name)
-        assert result == expected_result
-        if result:
-        # проверка добавления книги в словарь
+        # Проверяем результат в зависимости от ожидаемого поведения
+        if expected_result:
+            # Книга должна быть добавлена
             assert book_name in collector.books_genre
             
         else:
-        # Если не добавили, книги в словаре нет
-            assert book_name not in collector.books_genre  == ''
+            # Книга не должна быть добавлена
+            assert book_name not in collector.books_genre
 
-class TestBooksCollector:
+    # проверка невключения в словарь дубликата
+    def test_not_add_duplicate_book(self):
+        collector = BooksCollector()
+    # добавляем книгу
+        collector.add_new_book("Академия")
+        assert "Академия" in collector.books_genre
+    # Второй раз пытаемся добавить ту же книгу
+        collector.add_new_book("Академия")
+    # проверяем, что есть только одна запись    
+        assert len(collector.books_genre) == 1
+
 
         # проверка установки книге жанра из находящихся в списке жанров
     def test_set_book_genre_book_name_in_books_genre_and_genre_in_genre(self):
@@ -159,13 +169,15 @@ class TestBooksCollector:
         collector.delete_book_from_favorites('Академия')
         assert 'Академия' not in collector.favorites
 
-    # проверка получения списка Избранного
     def test_get_list_of_favorites_books(self):
         collector = BooksCollector()
-        
-    # добавляем книгу
+        # добавляем книги
         collector.add_new_book('Академия')
-                
+        collector.add_new_book('Академия 2')
+        # добавляем в избранное
         collector.add_book_in_favorites('Академия')
-    # проверяем наличие книги в Избранном
-        assert 'Академия' in collector.favorites
+        collector.add_book_in_favorites('Академия 2')
+        # получаем список через метод
+        #favorites_books = collector.get_list_of_favorites_books()
+        # проверяем, что список содержит нужные книги
+        assert collector.get_list_of_favorites_books() == ['Академия', 'Академия 2']
